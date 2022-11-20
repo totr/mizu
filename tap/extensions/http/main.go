@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/up9inc/mizu/tap/api"
+	"github.com/kubeshark/kubeshark/tap/api"
 )
 
 var http10protocol = api.Protocol{
@@ -22,7 +22,7 @@ var http10protocol = api.Protocol{
 	},
 	LongName:        "Hypertext Transfer Protocol -- HTTP/1.0",
 	Macro:           "http",
-	BackgroundColor: "#205cf5",
+	BackgroundColor: "#326de6",
 	ForegroundColor: "#ffffff",
 	FontSize:        12,
 	ReferenceLink:   "https://datatracker.ietf.org/doc/html/rfc1945",
@@ -38,7 +38,7 @@ var http11protocol = api.Protocol{
 	},
 	LongName:        "Hypertext Transfer Protocol -- HTTP/1.1",
 	Macro:           "http",
-	BackgroundColor: "#205cf5",
+	BackgroundColor: "#326de6",
 	ForegroundColor: "#ffffff",
 	FontSize:        12,
 	ReferenceLink:   "https://datatracker.ietf.org/doc/html/rfc2616",
@@ -286,19 +286,13 @@ func (d dissecting) Analyze(item *api.OutputChannelItem, resolvedSource string, 
 	reqDetails["pathSegments"] = strings.Split(path, "/")[1:]
 
 	// Rearrange the maps for the querying
-	reqDetails["_headers"] = reqDetails["headers"]
-	reqDetails["headers"] = mapSliceRebuildAsMap(reqDetails["_headers"].([]interface{}))
-	resDetails["_headers"] = resDetails["headers"]
-	resDetails["headers"] = mapSliceRebuildAsMap(resDetails["_headers"].([]interface{}))
+	reqDetails["headers"] = mapSliceRebuildAsMergedMap(reqDetails["headers"].([]interface{}))
+	resDetails["headers"] = mapSliceRebuildAsMergedMap(resDetails["headers"].([]interface{}))
 
-	reqDetails["_cookies"] = reqDetails["cookies"]
-	reqDetails["cookies"] = mapSliceRebuildAsMap(reqDetails["_cookies"].([]interface{}))
-	resDetails["_cookies"] = resDetails["cookies"]
-	resDetails["cookies"] = mapSliceRebuildAsMap(resDetails["_cookies"].([]interface{}))
+	reqDetails["cookies"] = mapSliceRebuildAsMergedMap(reqDetails["cookies"].([]interface{}))
+	resDetails["cookies"] = mapSliceRebuildAsMergedMap(resDetails["cookies"].([]interface{}))
 
-	reqDetails["_queryString"] = reqDetails["queryString"]
-	reqDetails["_queryStringMerged"] = mapSliceMergeRepeatedKeys(reqDetails["_queryString"].([]interface{}))
-	reqDetails["queryString"] = mapSliceRebuildAsMap(reqDetails["_queryStringMerged"].([]interface{}))
+	reqDetails["queryString"] = mapSliceRebuildAsMap(reqDetails["queryString"].([]interface{}))
 
 	elapsedTime := item.Pair.Response.CaptureTime.Sub(item.Pair.Request.CaptureTime).Round(time.Millisecond).Milliseconds()
 	if elapsedTime < 0 {
@@ -397,19 +391,19 @@ func representRequest(request map[string]interface{}) (repRequest []interface{})
 	repRequest = append(repRequest, api.SectionData{
 		Type:  api.TABLE,
 		Title: "Headers",
-		Data:  representMapSliceAsTable(request["_headers"].([]interface{}), `request.headers`),
+		Data:  representMapAsTable(request["headers"].(map[string]interface{}), `request.headers`),
 	})
 
 	repRequest = append(repRequest, api.SectionData{
 		Type:  api.TABLE,
 		Title: "Cookies",
-		Data:  representMapSliceAsTable(request["_cookies"].([]interface{}), `request.cookies`),
+		Data:  representMapAsTable(request["cookies"].(map[string]interface{}), `request.cookies`),
 	})
 
 	repRequest = append(repRequest, api.SectionData{
 		Type:  api.TABLE,
 		Title: "Query String",
-		Data:  representMapSliceAsTable(request["_queryStringMerged"].([]interface{}), `request.queryString`),
+		Data:  representMapAsTable(request["queryString"].(map[string]interface{}), `request.queryString`),
 	})
 
 	postData, _ := request["postData"].(map[string]interface{})
@@ -485,13 +479,13 @@ func representResponse(response map[string]interface{}) (repResponse []interface
 	repResponse = append(repResponse, api.SectionData{
 		Type:  api.TABLE,
 		Title: "Headers",
-		Data:  representMapSliceAsTable(response["_headers"].([]interface{}), `response.headers`),
+		Data:  representMapAsTable(response["headers"].(map[string]interface{}), `response.headers`),
 	})
 
 	repResponse = append(repResponse, api.SectionData{
 		Type:  api.TABLE,
 		Title: "Cookies",
-		Data:  representMapSliceAsTable(response["_cookies"].([]interface{}), `response.cookies`),
+		Data:  representMapAsTable(response["cookies"].(map[string]interface{}), `response.cookies`),
 	})
 
 	content, _ := response["content"].(map[string]interface{})

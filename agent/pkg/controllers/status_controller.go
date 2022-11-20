@@ -1,20 +1,23 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	core "k8s.io/api/core/v1"
 
 	"github.com/gin-gonic/gin"
-	"github.com/up9inc/mizu/agent/pkg/api"
-	"github.com/up9inc/mizu/agent/pkg/holder"
-	"github.com/up9inc/mizu/agent/pkg/providers"
-	"github.com/up9inc/mizu/agent/pkg/providers/tappedPods"
-	"github.com/up9inc/mizu/agent/pkg/providers/tappers"
-	"github.com/up9inc/mizu/agent/pkg/validation"
-	"github.com/up9inc/mizu/logger"
-	"github.com/up9inc/mizu/shared"
-	"github.com/up9inc/mizu/shared/kubernetes"
+	"github.com/kubeshark/kubeshark/agent/pkg/api"
+	"github.com/kubeshark/kubeshark/agent/pkg/holder"
+	"github.com/kubeshark/kubeshark/agent/pkg/providers"
+	"github.com/kubeshark/kubeshark/agent/pkg/providers/tappedPods"
+	"github.com/kubeshark/kubeshark/agent/pkg/providers/tappers"
+	"github.com/kubeshark/kubeshark/agent/pkg/validation"
+	"github.com/kubeshark/kubeshark/logger"
+	"github.com/kubeshark/kubeshark/shared"
+	"github.com/kubeshark/kubeshark/shared/kubernetes"
 )
 
 func HealthCheck(c *gin.Context) {
@@ -80,7 +83,24 @@ func GetGeneralStats(c *gin.Context) {
 }
 
 func GetTrafficStats(c *gin.Context) {
-	c.JSON(http.StatusOK, providers.GetTrafficStats())
+	startTime, endTime, err := getStartEndTime(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, providers.GetTrafficStats(startTime, endTime))
+}
+
+func getStartEndTime(c *gin.Context) (time.Time, time.Time, error) {
+	startTimeValue, err := strconv.Atoi(c.Query("startTimeMs"))
+	if err != nil {
+		return time.UnixMilli(0), time.UnixMilli(0), fmt.Errorf("invalid start time: %v", err)
+	}
+	endTimeValue, err := strconv.Atoi(c.Query("endTimeMs"))
+	if err != nil {
+		return time.UnixMilli(0), time.UnixMilli(0), fmt.Errorf("invalid end time: %v", err)
+	}
+	return time.UnixMilli(int64(startTimeValue)), time.UnixMilli(int64(endTimeValue)), nil
 }
 
 func GetCurrentResolvingInformation(c *gin.Context) {

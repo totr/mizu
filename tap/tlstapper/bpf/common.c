@@ -1,7 +1,7 @@
 /*
 Note: This file is licenced differently from the rest of the project
 SPDX-License-Identifier: GPL-2.0
-Copyright (C) UP9 Inc.
+Copyright (C) Kubeshark
 */
 
 #include "include/headers.h"
@@ -16,34 +16,16 @@ static __always_inline int add_address_to_chunk(struct pt_regs *ctx, struct tls_
     __u32 pid = id >> 32;
     __u64 key = (__u64) pid << 32 | fd;
 
-    struct fd_info *fdinfo = bpf_map_lookup_elem(&file_descriptor_to_ipv4, &key);
+    conn_flags *flags = bpf_map_lookup_elem(&connection_context, &key);
 
-    if (fdinfo == NULL) {
+    // Happens when we don't catch the connect / accept (if the connection is created before tapping is started)
+    if (flags == NULL) {
         return 0;
     }
 
-    int err;
+    chunk->flags |= (*flags & FLAGS_IS_CLIENT_BIT);
 
-    switch (info->address_info.mode) {
-        case ADDRESS_INFO_MODE_UNDEFINED:
-            chunk->address_info.mode = ADDRESS_INFO_MODE_SINGLE;
-            err = bpf_probe_read(&chunk->address_info.sport, sizeof(chunk->address_info.sport), &fdinfo->ipv4_addr[2]);
-            if (err != 0) {
-                log_error(ctx, LOG_ERROR_READING_FD_ADDRESS, id, err, 0l);
-                return 0;
-            }
-
-            err = bpf_probe_read(&chunk->address_info.saddr, sizeof(chunk->address_info.saddr), &fdinfo->ipv4_addr[4]);
-            if (err != 0) {
-                log_error(ctx, LOG_ERROR_READING_FD_ADDRESS, id, err, 0l);
-                return 0;
-            }
-            break;
-        default:
-            bpf_probe_read(&chunk->address_info, sizeof(chunk->address_info), &info->address_info);
-    }
-
-    chunk->flags |= (fdinfo->flags & FLAGS_IS_CLIENT_BIT);
+    bpf_probe_read(&chunk->address_info, sizeof(chunk->address_info), &info->address_info);
 
     return 1;
 }

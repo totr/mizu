@@ -1,4 +1,4 @@
-module github.com/up9inc/mizu/agent
+module github.com/kubeshark/kubeshark/agent
 
 go 1.17
 
@@ -15,20 +15,20 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/jinzhu/copier v0.3.5
+	github.com/kubeshark/kubeshark/logger v0.0.0
+	github.com/kubeshark/kubeshark/shared v0.0.0
+	github.com/kubeshark/kubeshark/tap v0.0.0
+	github.com/kubeshark/kubeshark/tap/api v0.0.0
+	github.com/kubeshark/kubeshark/tap/dbgctl v0.0.0
+	github.com/kubeshark/kubeshark/tap/extensions/amqp v0.0.0
+	github.com/kubeshark/kubeshark/tap/extensions/http v0.0.0
+	github.com/kubeshark/kubeshark/tap/extensions/kafka v0.0.0
+	github.com/kubeshark/kubeshark/tap/extensions/redis v0.0.0
 	github.com/nav-inc/datetime v0.1.3
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/orcaman/concurrent-map v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/up9inc/basenine/client/go v0.0.0-20220612112747-3b28eeac9c51
-	github.com/up9inc/mizu/logger v0.0.0
-	github.com/up9inc/mizu/shared v0.0.0
-	github.com/up9inc/mizu/tap v0.0.0
-	github.com/up9inc/mizu/tap/api v0.0.0
-	github.com/up9inc/mizu/tap/dbgctl v0.0.0
-	github.com/up9inc/mizu/tap/extensions/amqp v0.0.0
-	github.com/up9inc/mizu/tap/extensions/http v0.0.0
-	github.com/up9inc/mizu/tap/extensions/kafka v0.0.0
-	github.com/up9inc/mizu/tap/extensions/redis v0.0.0
 	github.com/wI2L/jsondiff v0.1.1
 	k8s.io/api v0.23.3
 	k8s.io/apimachinery v0.23.3
@@ -48,7 +48,6 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/beevik/etree v1.1.0 // indirect
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
 	github.com/chanced/dynamic v0.0.0-20211210164248-f8fadb1d735b // indirect
 	github.com/cilium/ebpf v0.9.0 // indirect
@@ -145,20 +144,20 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/up9inc/mizu/logger v0.0.0 => ../logger
+replace github.com/kubeshark/kubeshark/logger v0.0.0 => ../logger
 
-replace github.com/up9inc/mizu/shared v0.0.0 => ../shared
+replace github.com/kubeshark/kubeshark/shared v0.0.0 => ../shared
 
-replace github.com/up9inc/mizu/tap v0.0.0 => ../tap
+replace github.com/kubeshark/kubeshark/tap v0.0.0 => ../tap
 
-replace github.com/up9inc/mizu/tap/api v0.0.0 => ../tap/api
+replace github.com/kubeshark/kubeshark/tap/api v0.0.0 => ../tap/api
 
-replace github.com/up9inc/mizu/tap/extensions/amqp v0.0.0 => ../tap/extensions/amqp
+replace github.com/kubeshark/kubeshark/tap/extensions/amqp v0.0.0 => ../tap/extensions/amqp
 
-replace github.com/up9inc/mizu/tap/extensions/http v0.0.0 => ../tap/extensions/http
+replace github.com/kubeshark/kubeshark/tap/extensions/http v0.0.0 => ../tap/extensions/http
 
-replace github.com/up9inc/mizu/tap/extensions/kafka v0.0.0 => ../tap/extensions/kafka
+replace github.com/kubeshark/kubeshark/tap/extensions/kafka v0.0.0 => ../tap/extensions/kafka
 
-replace github.com/up9inc/mizu/tap/extensions/redis v0.0.0 => ../tap/extensions/redis
+replace github.com/kubeshark/kubeshark/tap/extensions/redis v0.0.0 => ../tap/extensions/redis
 
-replace github.com/up9inc/mizu/tap/dbgctl v0.0.0 => ../tap/dbgctl
+replace github.com/kubeshark/kubeshark/tap/dbgctl v0.0.0 => ../tap/dbgctl

@@ -86,7 +86,7 @@ export const ServiceMapModal: React.FC<ServiceMapModalProps> = ({ isOpen, onClos
             newGraphData.edges = serviceMapData.edges.map(mapEdgesDatatoGraph)
             setGraphData(newGraphData)
         } catch (ex) {
-            toast.error("An error occurred while loading Mizu Service Map, see console for mode details", { containerId: TOAST_CONTAINER_ID });
+            toast.error("An error occurred while loading Kubeshark Service Map, see console for mode details", { containerId: TOAST_CONTAINER_ID });
             console.error(ex);
         } finally {
             setIsLoading(false)
@@ -228,7 +228,7 @@ export const ServiceMapModal: React.FC<ServiceMapModalProps> = ({ isOpen, onClos
                                 <div className={styles.filterWrapper}>
                                     <div className={styles.card}>
                                         <SelectList items={getProtocolsForFilter} checkBoxWidth="5%" tableName={"PROTOCOLS"} multiSelect={true}
-                                            checkedValues={checkedProtocols} setCheckedValues={onProtocolsChange} tableClassName={styles.filters}
+                                            checkedValues={checkedProtocols} setCheckedValues={onProtocolsChange} tableClassName={styles.filters + ` ${styles.protocolsFilterList}`}
                                             inputSearchClass={styles.servicesFilterSearch} isFilterable={false} />
                                     </div>
                                     <div className={styles.servicesFilterWrapper + ` ${styles.card}`}>

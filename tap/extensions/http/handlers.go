@@ -10,16 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/up9inc/mizu/tap/api"
+	"github.com/kubeshark/kubeshark/tap/api"
 )
 
 func filterAndEmit(item *api.OutputChannelItem, emitter api.Emitter, options *api.TrafficFilteringOptions) {
 	if IsIgnoredUserAgent(item, options) {
 		return
-	}
-
-	if options.EnableRedaction {
-		FilterSensitiveData(item, options)
 	}
 
 	replaceForwardedFor(item)

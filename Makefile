@@ -8,7 +8,7 @@ SHELL=/bin/bash
 # HELP
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
-.PHONY: help ui agent agent-debug cli tap docker
+.PHONY: help ui agent agent-debug cli tap docker bpf clean-bpf
 
 help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -18,8 +18,15 @@ help: ## This help.
 # Variables and lists
 TS_SUFFIX="$(shell date '+%s')"
 GIT_BRANCH="$(shell git branch | grep \* | cut -d ' ' -f2 | tr '[:upper:]' '[:lower:]' | tr '/' '_')"
-BUCKET_PATH=static.up9.io/mizu/$(GIT_BRANCH)
+BUCKET_PATH=static.up9.io/kubeshark/$(GIT_BRANCH)
 export VER?=0.0
+ARCH=$(shell uname -m)
+ifeq ($(ARCH),$(filter $(ARCH),aarch64 arm64))
+	BPF_O_ARCH_LABEL=arm64
+else
+	BPF_O_ARCH_LABEL=x86
+endif
+BPF_O_FILES = tap/tlstapper/tlstapper46_bpfel_$(BPF_O_ARCH_LABEL).o tap/tlstapper/tlstapper_bpfel_$(BPF_O_ARCH_LABEL).o
 
 ui: ## Build UI.
 	@(cd ui; npm i ; npm run build; )
@@ -31,14 +38,20 @@ cli: ## Build CLI.
 cli-debug: ## Build CLI.
 	@echo "building cli"; cd cli && $(MAKE) build-debug
 
-agent: ## Build agent.
-	@(echo "building mizu agent .." )
-	@(cd agent; go build -o build/mizuagent main.go)
+agent: bpf ## Build agent.
+	@(echo "building kubeshark agent .." )
+	@(cd agent; go build -o build/kubesharkagent main.go)
 	@ls -l agent/build
 
+bpf: $(BPF_O_FILES)
+
+$(BPF_O_FILES): $(wildcard tap/tlstapper/bpf/**/*.[ch])
+	@(echo "building tlstapper bpf")
+	@(./tap/tlstapper/bpf-builder/build.sh)
+
 agent-debug: ## Build agent for debug.
-	@(echo "building mizu agent for debug.." )
-	@(cd agent; go build -gcflags="all=-N -l" -o build/mizuagent main.go)
+	@(echo "building kubeshark agent for debug.." )
+	@(cd agent; go build -gcflags="all=-N -l" -o build/kubesharkagent main.go)
 	@ls -l agent/build
 
 docker: ## Build and publish agent docker image.
@@ -46,7 +59,7 @@ docker: ## Build and publish agent docker image.
 
 agent-docker: ## Build agent docker image.
 	@echo "Building agent docker image"
-	@docker build -t up9inc/mizu:devlatest .
+	@docker build -t kubeshark/kubeshark:devlatest .
 
 push: push-docker push-cli ## Build and publish agent docker image & CLI.
 
@@ -75,6 +88,9 @@ clean-cli:  ## Clean CLI.
 
 clean-docker:  ## Run clean docker
 	@(echo "DOCKER cleanup - NOT IMPLEMENTED YET " )
+
+clean-bpf:
+	@(rm $(BPF_O_FILES) ; echo "bpf cleanup done" )
 
 test-lint:  ## Run lint on all modules
 	cd agent && golangci-lint run

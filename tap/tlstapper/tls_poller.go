@@ -16,8 +16,8 @@ import (
 	"github.com/cilium/ebpf/perf"
 	"github.com/go-errors/errors"
 	"github.com/hashicorp/golang-lru/simplelru"
-	"github.com/up9inc/mizu/logger"
-	"github.com/up9inc/mizu/tap/api"
+	"github.com/kubeshark/kubeshark/logger"
+	"github.com/kubeshark/kubeshark/tap/api"
 )
 
 const (
@@ -134,10 +134,7 @@ func (p *tlsPoller) pollChunksPerfBuffer(chunks chan<- *tlsTapperTlsChunk) {
 
 func (p *tlsPoller) handleTlsChunk(chunk *tlsTapperTlsChunk, extension *api.Extension, emitter api.Emitter,
 	options *api.TrafficFilteringOptions, streamsMap api.TcpStreamMap) error {
-	address, err := p.getAddressPair(chunk)
-	if err != nil {
-		return err
-	}
+	address := chunk.getAddressPair()
 
 	key := buildTlsKey(address)
 	reader, exists := p.readers[key]
@@ -149,27 +146,11 @@ func (p *tlsPoller) handleTlsChunk(chunk *tlsTapperTlsChunk, extension *api.Exte
 
 	reader.newChunk(chunk)
 
-	if os.Getenv("MIZU_VERBOSE_TLS_TAPPER") == "true" {
+	if os.Getenv("KUBESHARK_VERBOSE_TLS_TAPPER") == "true" {
 		p.logTls(chunk, key, reader)
 	}
 
 	return nil
-}
-
-func (p *tlsPoller) getAddressPair(chunk *tlsTapperTlsChunk) (addressPair, error) {
-	addrPairFromChunk, full := chunk.getAddressPair()
-	if full {
-		return addrPairFromChunk, nil
-	}
-
-	addrPairFromSockfd, err := p.getSockfdAddressPair(chunk)
-	if err == nil {
-		return addrPairFromSockfd, nil
-	} else {
-		logger.Log.Error("failed to get address from sock fd:", err)
-	}
-
-	return addrPairFromChunk, err
 }
 
 func (p *tlsPoller) startNewTlsReader(chunk *tlsTapperTlsChunk, address *addressPair, key string,
@@ -225,41 +206,6 @@ func dissect(extension *api.Extension, reader api.TcpReader, options *api.Traffi
 func (p *tlsPoller) closeReader(key string, r *tlsReader) {
 	close(r.chunks)
 	p.closedReaders <- key
-}
-
-func (p *tlsPoller) getSockfdAddressPair(chunk *tlsTapperTlsChunk) (addressPair, error) {
-	address, err := getAddressBySockfd(p.procfs, chunk.Pid, chunk.Fd)
-	fdCacheKey := fmt.Sprintf("%d:%d", chunk.Pid, chunk.Fd)
-
-	if err == nil {
-		if !chunk.isRequest() {
-			switchedAddress := addressPair{
-				srcIp:   address.dstIp,
-				srcPort: address.dstPort,
-				dstIp:   address.srcIp,
-				dstPort: address.srcPort,
-			}
-			p.fdCache.Add(fdCacheKey, switchedAddress)
-			return switchedAddress, nil
-		} else {
-			p.fdCache.Add(fdCacheKey, address)
-			return address, nil
-		}
-	}
-
-	fromCacheIfc, ok := p.fdCache.Get(fdCacheKey)
-
-	if !ok {
-		return addressPair{}, err
-	}
-
-	fromCache, ok := fromCacheIfc.(addressPair)
-
-	if !ok {
-		return address, errors.Errorf("Unable to cast %T to addressPair", fromCacheIfc)
-	}
-
-	return fromCache, nil
 }
 
 func buildTlsKey(address addressPair) string {

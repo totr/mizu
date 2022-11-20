@@ -4,29 +4,26 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/up9inc/mizu/cli/config"
-	"github.com/up9inc/mizu/cli/config/configStructs"
-	"github.com/up9inc/mizu/cli/telemetry"
-	"github.com/up9inc/mizu/logger"
+	"github.com/kubeshark/kubeshark/cli/config"
+	"github.com/kubeshark/kubeshark/cli/config/configStructs"
+	"github.com/kubeshark/kubeshark/logger"
 
 	"github.com/creasty/defaults"
+	"github.com/kubeshark/kubeshark/cli/kubeshark"
 	"github.com/spf13/cobra"
-	"github.com/up9inc/mizu/cli/mizu"
 )
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print version info",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		go telemetry.ReportRun("version", config.Config.Version)
-
 		if config.Config.Version.DebugInfo {
-			timeStampInt, _ := strconv.ParseInt(mizu.BuildTimestamp, 10, 0)
-			logger.Log.Infof("Version: %s \nBranch: %s (%s)", mizu.Ver, mizu.Branch, mizu.GitCommitHash)
-			logger.Log.Infof("Build Time: %s (%s)", mizu.BuildTimestamp, time.Unix(timeStampInt, 0))
+			timeStampInt, _ := strconv.ParseInt(kubeshark.BuildTimestamp, 10, 0)
+			logger.Log.Infof("Version: %s \nBranch: %s (%s)", kubeshark.Ver, kubeshark.Branch, kubeshark.GitCommitHash)
+			logger.Log.Infof("Build Time: %s (%s)", kubeshark.BuildTimestamp, time.Unix(timeStampInt, 0))
 
 		} else {
-			logger.Log.Infof("Version: %s (%s)", mizu.Ver, mizu.Branch)
+			logger.Log.Infof("Version: %s (%s)", kubeshark.Ver, kubeshark.Branch)
 		}
 		return nil
 	},

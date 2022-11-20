@@ -1,11 +1,11 @@
-module github.com/up9inc/mizu/acceptanceTests
+module github.com/kubeshark/kubeshark/acceptanceTests
 
 go 1.17
 
 require (
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/rabbitmq/amqp091-go v1.3.0
-	github.com/up9inc/mizu/shared v0.0.0
+	github.com/kubeshark/kubeshark/shared v0.0.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/apimachinery v0.23.3
 	k8s.io/client-go v0.23.3
@@ -18,7 +18,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-logr/logr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -29,7 +28,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/up9inc/mizu/logger v0.0.0 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sys v0.0.0-20220207234003-57398862261d // indirect
@@ -49,10 +47,10 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/up9inc/mizu/logger v0.0.0 => ../logger
+replace github.com/kubeshark/kubeshark/logger v0.0.0 => ../logger
 
-replace github.com/up9inc/mizu/shared v0.0.0 => ../shared
+replace github.com/kubeshark/kubeshark/shared v0.0.0 => ../shared
 
-replace github.com/up9inc/mizu/tap/api v0.0.0 => ../tap/api
+replace github.com/kubeshark/kubeshark/tap/api v0.0.0 => ../tap/api
 
-replace github.com/up9inc/mizu/tap/dbgctl v0.0.0 => ../tap/dbgctl
+replace github.com/kubeshark/kubeshark/tap/dbgctl v0.0.0 => ../tap/dbgctl
